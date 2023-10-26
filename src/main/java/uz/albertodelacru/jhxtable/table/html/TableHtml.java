@@ -1,9 +1,9 @@
 package uz.albertodelacru.jhxtable.table.html;
 
-import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -11,6 +11,9 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import uz.albertodelacru.jhxtable.http.helper.HttpHelper;
+import uz.albertodelacru.jhxtable.table.cell.HtmlCell;
+import uz.albertodelacru.jhxtable.table.cell.MergeCell;
+import uz.albertodelacru.jhxtable.table.helper.TableHelper;
 
 public class TableHtml {
 	private int maxNumRows = 0;
@@ -20,194 +23,105 @@ public class TableHtml {
 	// Table section checks
 	private boolean hasHeader = false;
 	private boolean hasTitle = false;
+
+	// Used to apply basic style to those columns and rows
 	private boolean hasTotalRow = false;
 	private boolean hasTotalColumn = false;
 
-	// Raw and processed Tables
-	private String rawHtmlTable = null;
+	// Raw DOM style table
 	private Document jsoupHtmlTable = null;
-	// All ROWS
-	private Elements htmlTableRows = null;
+
+	// Merge Map
+	private Map<Integer, List<HtmlCell>> tableMap = new LinkedHashMap<>();
 
 	// Title
-	private Element title = null;
-	private Element headerRow = null;
-	private Elements dataRows = null;
-	private Element footerRow = null;
+	private MergeCell title = null;
 
-	public TableHtml(String rawHtmlTable, boolean hasTitle, boolean hasHeader, boolean hasTotalRow, boolean hasTotalColumn){
-		this.hasTitle = hasTitle;
-		this.hasHeader = hasHeader;
-		this.hasTotalRow = hasTotalRow;
-		this.hasTotalColumn = hasTotalColumn;
-
-		this.rawHtmlTable = rawHtmlTable;
+	public TableHtml(String rawHtmlTable, boolean hasTotalRow, boolean hasTotalColumn){
 		this.jsoupHtmlTable = Jsoup.parse(rawHtmlTable);
 		this.jsoupHtmlTable.charset( StandardCharsets.UTF_8 );
-
-		this.htmlTableRows =  processJsoupDocument(jsoupHtmlTable, hasTitle);
-
-		this.title = processHtmlTableTitle(this.htmlTableRows, hasTitle);
-		this.headerRow = processHtmlTableHeader(this.htmlTableRows, hasTitle, hasHeader);
-
-		this.maxNumRows = calculateMaxTableRows(this.htmlTableRows);
-		this.numDataRows = calculateNumDataTableRows(this.htmlTableRows, hasTitle, hasHeader, hasTotalRow);
-		this.maxNumColumns = calculateMaxTableColumns(this.headerRow);
-
-		this.footerRow = processHtmlTableFooter(this.htmlTableRows, hasTotalRow);
-		this.dataRows = processHtmlTableData(this.htmlTableRows, hasHeader, hasTotalRow, hasTitle);
-	}
-
-	public TableHtml(HttpHelper httpHelper, boolean hasTitle, boolean hasHeader, boolean hasTotalRow, boolean hasTotalColumn){
-		this.hasTitle = hasTitle;
-		this.hasHeader = hasHeader;
+		
+		// General HTML TABLE Features
 		this.hasTotalRow = hasTotalRow;
 		this.hasTotalColumn = hasTotalColumn;
+		this.hasTitle = isTitlePresent(jsoupHtmlTable);
+		this.hasHeader = isHeaderPresent(jsoupHtmlTable);
+		this.maxNumColumns = calculateMaxTableColumns(jsoupHtmlTable);
+		this.maxNumRows = calculateMaxTableRows(jsoupHtmlTable);
 
-		this.rawHtmlTable = httpHelper.makeHttpRequest();
-		this.jsoupHtmlTable = Jsoup.parse(rawHtmlTable);
+		// TABLE MAPs
+		this.tableMap = TableHelper.initializeTableMap(this.maxNumRows, this.maxNumColumns);
+		TableHelper.updateTableCellsMapWithMergeAndValueInfo(tableMap, jsoupHtmlTable, this.maxNumColumns);
+
+		if( this.hasTitle ){
+			this.title = processHtmlTableTitle(jsoupHtmlTable, this.maxNumColumns);
+		}
+	}
+
+	public TableHtml(HttpHelper httpHelper, boolean hasTotalRow, boolean hasTotalColumn){
+		this.jsoupHtmlTable = Jsoup.parse(httpHelper.makeHttpRequest());
 		this.jsoupHtmlTable.charset( StandardCharsets.UTF_8 );
+		
+		// General HTML TABLE Features
+		this.hasTotalRow = hasTotalRow;
+		this.hasTotalColumn = hasTotalColumn;
+		this.hasTitle = isTitlePresent(jsoupHtmlTable);
+		this.hasHeader = isHeaderPresent(jsoupHtmlTable);
+		this.maxNumColumns = calculateMaxTableColumns(jsoupHtmlTable);
+		this.maxNumRows = calculateMaxTableRows(jsoupHtmlTable);
 
-		this.htmlTableRows =  processJsoupDocument(jsoupHtmlTable, hasTitle);
+		// TABLE MAPs
+		this.tableMap = TableHelper.initializeTableMap(this.maxNumRows, this.maxNumColumns);
+		TableHelper.updateTableCellsMapWithMergeAndValueInfo(tableMap, jsoupHtmlTable, this.maxNumColumns);
 
-		this.title = processHtmlTableTitle(this.htmlTableRows, hasTitle);
-		this.headerRow = processHtmlTableHeader(this.htmlTableRows, hasTitle, hasHeader);
-
-		this.maxNumRows = calculateMaxTableRows(this.htmlTableRows);
-		this.numDataRows = calculateNumDataTableRows(this.htmlTableRows, hasTitle, hasHeader, hasTotalRow);
-		this.maxNumColumns = calculateMaxTableColumns(this.headerRow);
-
-		this.footerRow = processHtmlTableFooter(this.htmlTableRows, hasTotalRow);
-		this.dataRows = processHtmlTableData(this.htmlTableRows, hasHeader, hasTotalRow, hasTitle);
+		if( this.hasTitle ){
+			this.title = processHtmlTableTitle(jsoupHtmlTable, this.maxNumColumns);
+		}
 	}
 
-	private Element processHtmlTableTitle(Elements rows, boolean hasTitle){
-		// Is empty
-		if( rows.isEmpty() ){
-			return null;
-		}
+	private MergeCell processHtmlTableTitle(Document jsoupHtmlTable, int maxNumColumns){
+		Elements cells = jsoupHtmlTable.select("caption");
 
-		// Does not has Title
-		if( !hasTitle ){
-			return null;
-		}
-
-		return rows.get(0);
+		return new MergeCell(0, 0, maxNumColumns, 0, TableHelper.cleanCell(cells.get(0)));
 	}
 
-	private Elements processJsoupDocument(Document jsoupHtmlTable, boolean hasTitle){
-		Elements htmlTable = jsoupHtmlTable.select("tr");
+	private boolean isTitlePresent(Document jsoupHtmlTable){
+		Elements cells = jsoupHtmlTable.select("caption");
 
-		if( hasTitle ){
-			Elements htmlTableTitle = jsoupHtmlTable.select("caption");
+		return !cells.isEmpty();
+	}
 
-			if( !htmlTableTitle.isEmpty() ){
-				htmlTable.add(0, htmlTableTitle.get(0));
+	private boolean isHeaderPresent(Document jsoupHtmlTable){
+		Elements cells = jsoupHtmlTable.select("th");
+		return !cells.isEmpty();
+	}
+
+	private int calculateMaxTableColumns(Document jsoupHtmlTable){
+		Elements rows = jsoupHtmlTable.getElementsByTag("tr");
+		
+		int maxSize = 0;
+
+		for(Element row : rows){
+			if( maxSize < row.getElementsByTag("td").size() ){
+				maxSize = row.getElementsByTag("td").size();
+			}
+			
+			if( maxSize < row.getElementsByTag("th").size() ){
+				maxSize = row.getElementsByTag("th").size();
 			}
 		}
 
-		return htmlTable;
-	}
-
-	private Element isHeaderPresent(Element row){
-		Elements headersCells = row.select("th");
-
-		if( headersCells.isEmpty() ){
-			hasHeader = false;
-
-			return null;
-		}
-
-		return row;
-	}
-
-	private Element processHtmlTableHeader(Elements rows, boolean hasTitle, boolean hasHeader){
-		// Is empty
-		if( rows.isEmpty() ){
-			return null;
-		}
-
-		// Does not has header
-		if( !hasHeader ){
-			return null;
-		}
-
-		// Get header (after title)
-		if( hasTitle ){
-			return isHeaderPresent(rows.get(1));
-		}
-
-		// Get header (no title)
-		return isHeaderPresent(rows.get(0));
-	}
-
-	private Element processHtmlTableFooter(Elements rows, boolean hasTotalRow){
-		if( !hasTotalRow ){
-			return null;
-		}
-
-		return rows.get( maxNumRows - 1 );
-	}
-
-	private Elements processHtmlTableData(Elements rows,  boolean hasHeader, boolean hasTotalRow, boolean hasTitle){
-		List<Element> elements = new ArrayList<>();
-		
-		int fromRow = 0;
-		int toRow = maxNumRows;
-		
-		if( hasTitle ){
-			fromRow++;
-		}
-
-		if( hasHeader ){
-			fromRow++;
-		}
-
-		if( hasTotalRow ){
-			toRow--;
-		}
-
-		for( ; fromRow < toRow; fromRow++ ){
-			elements.add( rows.get( fromRow ) );
-		}
-
-		return new Elements(elements);
-	}
-
-	private int calculateMaxTableColumns(Element dataRow){
-		return !dataRow.getElementsByTag("th").isEmpty() ? dataRow.getElementsByTag("th").size() : 0 ;
+		return maxSize;
 	}
 
 	/**
-	 * Only includes Rows from the data section (Not header or Title)
+	 * Including Headers
 	 * @param rows	Array of Jsoup Elements
 	 * @return num of rows
 	 */
-	private int calculateNumDataTableRows(Elements rows, boolean hasTitle, boolean hasHeader, boolean hasTotalRow ){
-		int subtract = 0;
-
-		if( hasTotalRow ){
-			subtract++;
-		}
-
-		if( hasTitle ){
-			subtract++;
-		}
-
-		if( hasHeader ){
-			subtract++;
-		}
-
-		return rows.size() - subtract ;
-	}
-
-	/**
-	 * Including Headers and Titles (if they exist)
-	 * @param rows	Array of Jsoup Elements
-	 * @return num of rows
-	 */
-	private int calculateMaxTableRows(Elements rows){
-		return rows.size();
+	private int calculateMaxTableRows(Document jsoupHtmlTable){
+		Elements rows =  jsoupHtmlTable.getElementsByTag("tr");
+		return rows.isEmpty() ? 0 : rows.size();
 	}
 
 	// GETTERs && SETTERs
@@ -235,68 +149,12 @@ public class TableHtml {
 		this.numDataRows = numDataRows;
 	}
 
-	public String getRawHtmlTable() {
-		return rawHtmlTable;
-	}
-
-	public void setRawHtmlTable(String rawHtmlTable) {
-		this.rawHtmlTable = rawHtmlTable;
-	}
-
 	public Document getJsoupHtmlTable() {
 		return jsoupHtmlTable;
 	}
 
 	public void setJsoupHtmlTable(Document jsoupHtmlTable) {
 		this.jsoupHtmlTable = jsoupHtmlTable;
-	}
-
-	public Elements getHtmlTableRows() {
-		return htmlTableRows;
-	}
-
-	public void setHtmlTableRows(Elements htmlTableRows) {
-		this.htmlTableRows = htmlTableRows;
-	}
-
-	public Element getTitle() {
-		return title;
-	}
-
-	public String getTitleText(){
-		if(title != null){
-			return title.html();
-		}
-
-		return null;
-	}
-
-	public void setTitle(Element title) {
-		this.title = title;
-	}
-
-	public Element getHeaderRow() {
-		return headerRow;
-	}
-
-	public void setHeaderRow(Element headerRow) {
-		this.headerRow = headerRow;
-	}
-
-	public Elements getDataRows() {
-		return dataRows;
-	}
-
-	public void setDataRows(Elements dataRows) {
-		this.dataRows = dataRows;
-	}
-
-	public Element getFooterRow() {
-		return footerRow;
-	}
-
-	public void setFooterRow(Element footerRow) {
-		this.footerRow = footerRow;
 	}
 
 	public boolean isHasHeader() {
@@ -331,5 +189,19 @@ public class TableHtml {
 		this.hasTotalColumn = hasTotalColumn;
 	}
 
-	
+	public Map<Integer, List<HtmlCell>> getTableMap() {
+		return tableMap;
+	}
+
+	public void setTableMap(Map<Integer, List<HtmlCell>> tableMap) {
+		this.tableMap = tableMap;
+	}
+
+	public MergeCell getTitle() {
+		return title;
+	}
+
+	public void setTitle(MergeCell title) {
+		this.title = title;
+	}
 }

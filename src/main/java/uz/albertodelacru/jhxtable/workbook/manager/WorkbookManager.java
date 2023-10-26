@@ -1,6 +1,5 @@
 package uz.albertodelacru.jhxtable.workbook.manager;
 
-import java.util.List;
 import java.util.Map;
 
 import org.apache.poi.hssf.usermodel.HSSFSheet;
@@ -11,6 +10,8 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import uz.albertodelacru.jhxtable.file.helper.FileHelper;
+import uz.albertodelacru.jhxtable.table.cell.HtmlCell;
+import uz.albertodelacru.jhxtable.table.cell.MergeCell;
 import uz.albertodelacru.jhxtable.table.html.TableHtml;
 import uz.albertodelacru.jhxtable.workbook.helper.WorkbookHelper;
 
@@ -39,172 +40,91 @@ public class WorkbookManager extends Workbook {
 		}
 	}
 
-	/**
-	 * Limpia y normaliza los valores que puede contener una celda de una tabla HTML:
-	 * - <span>
-	 * - <a>
-	 * @param rawCell
-	 * @return
-	 */
-	private String cleanCell(Element rawCell){
-		String cleanedData = "";
-
-		if( !rawCell.children().isEmpty() ){
-			// TODO: Ampliar con posible valores que vengan como child de un <td>
-			if( rawCell.html().contains("</a>") ){
-				cleanedData = rawCell.getElementsByTag("a").html();
-			}else if( rawCell.html().contains("</span>") ){
-				cleanedData = rawCell.getElementsByTag("span").html();
-			}
-		}else{
-			cleanedData = rawCell.html();
-		}
-
-		return cleanedData;
-	}
-
-	private int generateSheetTitleRow( HSSFSheet ws, TableHtml table, int numOfRow ){
+	private void generateSheetTitleRow( HSSFSheet ws, TableHtml table ){
 		// If not Title, early return
 		if( !table.isHasTitle() ){
-			return numOfRow;
+			return;
 		}
 
-		// Merge Title row to occupy all columns
-		ws.addMergedRegion(new CellRangeAddress(0, 0, 0, table.getMaxNumColumns() - 1));
-		Row row = ws.createRow(numOfRow);
-		Cell cell = row.createCell(0);
+		// Añadimos una region de merge al Excel (InitialRow, NumberOfCellsToMerge)
+		ws.addMergedRegion(new CellRangeAddress(table.getTitle().getRowNum(), table.getTitle().getRowNum(), table.getTitle().getColNum(), table.getMaxNumColumns() - 1));
 
-		cell.setCellValue(table.getTitleText());
+		Row row = ws.createRow(table.getTitle().getRowNum());
+		Cell cell = row.createCell(table.getTitle().getColNum());
+
+		cell.setCellValue(table.getTitle().getValue());
 		cell.setCellStyle(titleCellStyle);
-
-		numOfRow++;
-
-		return numOfRow;
 	}
 
-	private int generateSheetHeaderRow( HSSFSheet ws, TableHtml table, int numOfRow ){
-		// If not Header, early return
-		if( !table.isHasHeader() ){
-			return numOfRow;
-		}
-
-		Row row = ws.createRow(numOfRow);
-		Elements headerColumnData = table.getHeaderRow().getElementsByTag("th");
-		
-		// Loop on header row ALL columns
-		for( int i = 0; i < headerColumnData.size(); i++ ){
-			Cell cell = row.createCell(i);
-
-			cell.setCellValue( cleanCell( headerColumnData.get(i) ) );
-			cell.setCellStyle( headerCellStyle );
-		}
-
-		numOfRow++;
-
-		return numOfRow;
+	private boolean isColumnMerge( MergeCell currentCell ){
+		return currentCell.getColSpan() > 0;
 	}
 
-	private int generateSheetDataRows( HSSFSheet ws, TableHtml table, int numOfRow ){
-		// Generamos los datos de la tabla (NO se tiene en cuenta TOTAL si es que tiene)
-		for( int i = 0; i < table.getNumDataRows(); i++ ){
-			// Creamos la fila
-			Row row = ws.createRow(numOfRow);
+	private boolean isRowMerge( MergeCell currentCell ){
+		return currentCell.getRowSpan() > 0;
+	}
 
-			// Guardamos la fila en una variable intermedia
-			Element htmlRow = table.getDataRows().get(i);
+	private void generateSheetDataRows( HSSFSheet ws, TableHtml table ){
+		int offsetFila = table.isHasTitle() ? 1 : 0;
 
-			// Guardamos los datos de la fila en una variable intermedia
-			Elements htmlColumnsData = htmlRow.getElementsByTag("td");
+		for( int x = 0; x < table.getTableMap().size(); x++ ){
+			Row row = ws.createRow(x + offsetFila);
 
-			WorkbookHelper.addExtraValuesToMergeRow(htmlColumnsData, table);
+			for(int y = 0; y < table.getTableMap().get(x).size(); y++ ){
+				Cell cell = row.createCell(y);
+				
+				if( table.getTableMap().get(x).get(y).isMerged() ){
+					// Añadimos una region de merge al Excel (InitialRow, NumberOfCellsToMerge)
+					MergeCell currentCell = (MergeCell) table.getTableMap().get(x).get(y);
 
-			// Recorremos las columnas/datos de esa fila
-			for(int z = 0; z < htmlColumnsData.size(); z++){
-				//Comprobamos si se tiene que mergear las FILAS (contiene atributo rowspan)
-				if( htmlColumnsData.get(z).hasAttr("rowspan") ){
-					String rowNumAttr = htmlColumnsData.get(z).attr("rowspan");
+					if( isColumnMerge(currentCell) ){
+						int initialMergeColumn = y;
+						int finalMergeColumn = (y + currentCell.getColSpan()) > 0 ? (y + currentCell.getColSpan()) - 1 : 0 ;
 
-					// Si es mayor que 1 (mergeamos)
-					if( Integer.parseInt(rowNumAttr) > 1 ){
-						// Añadimos una region de merge al Excel (InitialRow, NumberOfCellsToMerge)
-						ws.addMergedRegion(new CellRangeAddress(numOfRow, (numOfRow + Integer.parseInt(rowNumAttr)) - 1, z, z));
+						ws.addMergedRegion(new CellRangeAddress(x + offsetFila, x + offsetFila, initialMergeColumn, finalMergeColumn));
+					}
+
+					if( isRowMerge(currentCell) ){
+						int initialMergeRow = x + offsetFila;
+						int finalMergeRow = (x + offsetFila + currentCell.getRowSpan()) > 0 ? (x + offsetFila + currentCell.getRowSpan()) - 1 : 0;
+
+						ws.addMergedRegion(new CellRangeAddress(initialMergeRow, finalMergeRow, y, y));
 					}
 				}
 
-				// Creamos la celda de datos en la fila
-				Cell cell = row.createCell(z);
-				cell.setCellValue( cleanCell(htmlColumnsData.get(z)) );
+				cell.setCellValue( table.getTableMap().get(x).get(y).getValue() );
+				cell.setCellStyle( dataCellStyle );
 
-				// Si estamos en la última columna Y tiene columna de total
-				if((z == table.getMaxNumColumns() - 1) && table.isHasTotalColumn()){
-					cell.setCellStyle( totalCellStyle );
+				// Last Row
+				if( (x == table.getTableMap().size() - 1) ){
+					if( table.isHasTotalRow() ){
+						cell.setCellStyle( totalCellStyle );
+					}
 				}
-				else{
-					cell.setCellStyle( dataCellStyle );
+
+				// Last Column
+				if( (y == table.getTableMap().get(x).size() - 1) ){
+					if( table.isHasTotalColumn() ){
+						cell.setCellStyle( totalCellStyle );
+					}
 				}
+
+				// Header
+				if( (x == 0) ){
+					if( table.isHasTotalColumn() ){
+						cell.setCellStyle( headerCellStyle );
+					}
+				}
+
 			}
-
-			// Avanzamos de FILA
-			numOfRow++;
 		}
-
-		return numOfRow;
-	}
-
-	private void generateSheetTotalRow( HSSFSheet ws, TableHtml table, int numOfRow ){
-		// If not Title, early return
-		if( !table.isHasTotalRow() ){
-			return ;
-		}
-
-		// Creamos la fila
-		Row row = ws.createRow(numOfRow);
-
-		// Guardamos la fila en una variable intermedia
-		Element htmlRow = table.getFooterRow();
-
-		// Guardamos los datos de la fila en una variable intermedia
-		Elements htmlColumnsData = htmlRow.getElementsByTag("td");
-
-		WorkbookHelper.addExtraValuesToMergeColumns(htmlColumnsData, table);
-
-		// Recorremos las columnas/datos de esa fila
-		for(int i = 0; i < htmlColumnsData.size(); i++){
-			// Comprobamos si se tiene que mergear las COLUMNAS (contiene atributo colspan)
-			if( htmlColumnsData.get(i).hasAttr("colspan") ){
-				String colNumAttr = htmlColumnsData.get(i).attr("colspan");
-
-				// Si es mayor que 1 (mergeamos)
-				if( Integer.parseInt(colNumAttr) > 1 ){
-					// Añadimos una region de merge al Excel (InitialRow, NumberOfCellsToMerge)
-					ws.addMergedRegion(new CellRangeAddress(numOfRow, numOfRow, i, (i + Integer.parseInt(colNumAttr)) - 1));
-				}
-			}
-
-			// Creamos la celda de datos en la fila
-			Cell cell = row.createCell(i);
-			cell.setCellValue( cleanCell(htmlColumnsData.get(i)) );
-			cell.setCellStyle( totalCellStyle );
-		}
-
 	}
 
 	private void generateExcelSheetFromHtmlTable(TableHtml table, String sheetName){
 		HSSFSheet ws = wb.createSheet(sheetName);
 
-		// Contador general de en qué fila nos encontramos
-		int rownum = 0;
-
-		// TITLE
-		rownum = generateSheetTitleRow(ws, table,rownum);
-		
-		// HEADER
-		rownum = generateSheetHeaderRow(ws, table, rownum);
-		
-		// DATOS
-		rownum = generateSheetDataRows(ws, table, rownum);
-
-		generateSheetTotalRow(ws, table, rownum);
+		generateSheetTitleRow(ws, table);
+		generateSheetDataRows(ws, table);
 
 		// Autoformateamos las columnas (para ajustar el ancho al texto)
 		for( int i = 0; i < table.getMaxNumColumns(); i++ ){
@@ -217,6 +137,10 @@ public class WorkbookManager extends Workbook {
 	}
 
 	public void saveWorkbookToLocal(String path){
-		FileHelper.saveExcelFileToLocal(path, wb);
+		FileHelper.saveExcelFileToLocal(path + "." + DEFAULT_FILENAME, wb);
+	}
+
+	public void saveWorkbookToLocal(String path, String filename){
+		FileHelper.saveExcelFileToLocal(path + "\\" + WorkbookHelper.addExcelExtensionToFilename(filename), wb);
 	}
 }

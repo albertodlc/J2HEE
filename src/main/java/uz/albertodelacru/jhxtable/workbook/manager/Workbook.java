@@ -7,7 +7,9 @@ import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.IndexedColors;
 
-abstract class Workbook {	
+abstract class Workbook {
+	protected static final String DEFAULT_FILENAME = "table.xls";
+	
     // Default CELL Styles (All tables have this styles)
     protected CellStyle headerCellStyle = null;
     protected CellStyle totalCellStyle = null;

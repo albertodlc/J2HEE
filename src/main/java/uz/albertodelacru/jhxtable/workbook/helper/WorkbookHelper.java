@@ -6,6 +6,11 @@ import org.jsoup.select.Elements;
 import uz.albertodelacru.jhxtable.table.html.TableHtml;
 
 public class WorkbookHelper {
+    
+    private WorkbookHelper() {
+        throw new IllegalStateException("Utility class");
+    }
+
     /**
      * Check if the Columns of the row, has the maximum size (the header size)
      * @param columnsData Array of elements to check
@@ -15,6 +20,14 @@ public class WorkbookHelper {
     public static boolean isColumnDataSizeEqual(Elements columnsData, int headerSize){
 		return (columnsData.size() == headerSize);
 	}
+
+    public static String addExcelExtensionToFilename(String filename){
+		if( !filename.contains(".xls") ){
+			return filename + ".xls";
+		}
+
+		return filename;
+    }
 
     public static void addExtraValuesToMergeRow(Elements htmlColumnsData, TableHtml table){
         if( !WorkbookHelper.isColumnDataSizeEqual(htmlColumnsData, table.getMaxNumColumns()) ){
