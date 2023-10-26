@@ -1,6 +1,6 @@
 package uz.albertodelacru.jhxtable.table.html;
 
-import java.nio.charset.Charset;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
@@ -9,6 +9,8 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+
+import uz.albertodelacru.jhxtable.http.helper.HttpHelper;
 
 public class TableHtml {
 	private int maxNumRows = 0;
@@ -56,6 +58,29 @@ public class TableHtml {
 		this.dataRows = processHtmlTableData(this.htmlTableRows, hasHeader, hasTotalRow, hasTitle);
 	}
 
+	public TableHtml(HttpHelper httpHelper, boolean hasTitle, boolean hasHeader, boolean hasTotalRow, boolean hasTotalColumn){
+		this.hasTitle = hasTitle;
+		this.hasHeader = hasHeader;
+		this.hasTotalRow = hasTotalRow;
+		this.hasTotalColumn = hasTotalColumn;
+
+		this.rawHtmlTable = httpHelper.makeHttpRequest();
+		this.jsoupHtmlTable = Jsoup.parse(rawHtmlTable);
+		this.jsoupHtmlTable.charset( StandardCharsets.UTF_8 );
+
+		this.htmlTableRows =  processJsoupDocument(jsoupHtmlTable, hasTitle);
+
+		this.title = processHtmlTableTitle(this.htmlTableRows, hasTitle);
+		this.headerRow = processHtmlTableHeader(this.htmlTableRows, hasTitle, hasHeader);
+
+		this.maxNumRows = calculateMaxTableRows(this.htmlTableRows);
+		this.numDataRows = calculateNumDataTableRows(this.htmlTableRows, hasTitle, hasHeader, hasTotalRow);
+		this.maxNumColumns = calculateMaxTableColumns(this.headerRow);
+
+		this.footerRow = processHtmlTableFooter(this.htmlTableRows, hasTotalRow);
+		this.dataRows = processHtmlTableData(this.htmlTableRows, hasHeader, hasTotalRow, hasTitle);
+	}
+
 	private Element processHtmlTableTitle(Elements rows, boolean hasTitle){
 		// Is empty
 		if( rows.isEmpty() ){
@@ -84,6 +109,18 @@ public class TableHtml {
 		return htmlTable;
 	}
 
+	private Element isHeaderPresent(Element row){
+		Elements headersCells = row.select("th");
+
+		if( headersCells.isEmpty() ){
+			hasHeader = false;
+
+			return null;
+		}
+
+		return row;
+	}
+
 	private Element processHtmlTableHeader(Elements rows, boolean hasTitle, boolean hasHeader){
 		// Is empty
 		if( rows.isEmpty() ){
@@ -97,11 +134,11 @@ public class TableHtml {
 
 		// Get header (after title)
 		if( hasTitle ){
-			return rows.get(1);
+			return isHeaderPresent(rows.get(1));
 		}
 
 		// Get header (no title)
-		return rows.get(0);
+		return isHeaderPresent(rows.get(0));
 	}
 
 	private Element processHtmlTableFooter(Elements rows, boolean hasTotalRow){

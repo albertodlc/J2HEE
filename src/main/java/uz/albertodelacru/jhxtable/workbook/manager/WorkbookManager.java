@@ -1,5 +1,8 @@
 package uz.albertodelacru.jhxtable.workbook.manager;
 
+import java.util.List;
+import java.util.Map;
+
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
@@ -27,6 +30,14 @@ public class WorkbookManager extends Workbook {
 		super();
 		generateExcelSheetFromHtmlTable(table, sheetName);
     }
+
+	public WorkbookManager(Map<String, TableHtml> tables){
+		super();
+
+		for(Map.Entry<String, TableHtml> table : tables.entrySet() ){
+			generateExcelSheetFromHtmlTable(table.getValue(), table.getKey());
+		}
+	}
 
 	/**
 	 * Limpia y normaliza los valores que puede contener una celda de una tabla HTML:
