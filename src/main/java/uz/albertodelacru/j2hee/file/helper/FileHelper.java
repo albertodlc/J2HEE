@@ -1,4 +1,4 @@
-package uz.albertodelacru.jhxtable.file.helper;
+package uz.albertodelacru.j2hee.file.helper;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;

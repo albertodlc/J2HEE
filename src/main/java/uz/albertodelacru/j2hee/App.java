@@ -1,8 +1,8 @@
-package uz.albertodelacru.jhxtable;
+package uz.albertodelacru.j2hee;
 
-import uz.albertodelacru.jhxtable.file.helper.FileHelper;
-import uz.albertodelacru.jhxtable.table.html.TableHtml;
-import uz.albertodelacru.jhxtable.workbook.manager.WorkbookManager;
+import uz.albertodelacru.j2hee.file.helper.FileHelper;
+import uz.albertodelacru.j2hee.table.html.TableHtml;
+import uz.albertodelacru.j2hee.workbook.manager.WorkbookManager;
 
 /**
  * Hello world!

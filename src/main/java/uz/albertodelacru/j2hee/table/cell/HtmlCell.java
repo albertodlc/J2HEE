@@ -1,4 +1,4 @@
-package uz.albertodelacru.jhxtable.table.cell;
+package uz.albertodelacru.j2hee.table.cell;
 
 public class HtmlCell {
     protected String value = "";

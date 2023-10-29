@@ -1,4 +1,4 @@
-package uz.albertodelacru.jhxtable.http.helper;
+package uz.albertodelacru.j2hee.http.helper;
 
 import java.io.BufferedReader;
 import java.io.IOException;

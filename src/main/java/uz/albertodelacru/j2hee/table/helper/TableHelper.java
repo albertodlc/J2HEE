@@ -1,4 +1,4 @@
-package uz.albertodelacru.jhxtable.table.helper;
+package uz.albertodelacru.j2hee.table.helper;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -9,8 +9,8 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-import uz.albertodelacru.jhxtable.table.cell.HtmlCell;
-import uz.albertodelacru.jhxtable.table.cell.MergeCell;
+import uz.albertodelacru.j2hee.table.cell.HtmlCell;
+import uz.albertodelacru.j2hee.table.cell.MergeCell;
 
 public class TableHelper {
     private TableHelper() {

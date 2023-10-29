@@ -1,4 +1,4 @@
-package uz.albertodelacru.jhxtable.table.html;
+package uz.albertodelacru.j2hee.table.html;
 
 import java.nio.charset.StandardCharsets;
 import java.util.LinkedHashMap;
@@ -10,10 +10,10 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-import uz.albertodelacru.jhxtable.http.helper.HttpHelper;
-import uz.albertodelacru.jhxtable.table.cell.HtmlCell;
-import uz.albertodelacru.jhxtable.table.cell.MergeCell;
-import uz.albertodelacru.jhxtable.table.helper.TableHelper;
+import uz.albertodelacru.j2hee.http.helper.HttpHelper;
+import uz.albertodelacru.j2hee.table.cell.HtmlCell;
+import uz.albertodelacru.j2hee.table.cell.MergeCell;
+import uz.albertodelacru.j2hee.table.helper.TableHelper;
 
 public class TableHtml {
 	private int maxNumRows = 0;

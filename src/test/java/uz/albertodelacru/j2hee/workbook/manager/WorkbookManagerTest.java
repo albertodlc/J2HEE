@@ -1,4 +1,4 @@
-package uz.albertodelacru.jhxtable.workbook.manager;
+package uz.albertodelacru.j2hee.workbook.manager;
 
 import java.util.ArrayList;
 

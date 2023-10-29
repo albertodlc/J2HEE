@@ -4,11 +4,11 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-  <groupId>uz.albertodelacru.jhxtable</groupId>
-  <artifactId>jhxtable</artifactId>
+  <groupId>uz.albertodelacru.j2hee</groupId>
+  <artifactId>j2hee</artifactId>
   <version>1.0-SNAPSHOT</version>
 
-  <name>jhxtable</name>
+  <name>j2hee</name>
   <!-- FIXME change it to the project's website -->
   <url>http://www.albertodelacr.uz</url>
 
@@ -18,8 +18,6 @@
     <maven.compiler.target>1.8</maven.compiler.target>
     <maven.test.skip>true</maven.test.skip>
   </properties>
-
-
 
   <dependencies>
     <dependency>
@@ -102,7 +100,7 @@
             <artifactId>exec-maven-plugin</artifactId>
             <version>1.2.1</version>
             <configuration>
-                <mainClass>uz.albertodelacru.jhxtable.App</mainClass>
+                <mainClass>uz.albertodelacru.j2hee.App</mainClass>
             </configuration>
         </plugin>
       </plugins>

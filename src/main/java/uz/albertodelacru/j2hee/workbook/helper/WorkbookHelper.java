@@ -1,9 +1,9 @@
-package uz.albertodelacru.jhxtable.workbook.helper;
+package uz.albertodelacru.j2hee.workbook.helper;
 
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-import uz.albertodelacru.jhxtable.table.html.TableHtml;
+import uz.albertodelacru.j2hee.table.html.TableHtml;
 
 public class WorkbookHelper {
     
