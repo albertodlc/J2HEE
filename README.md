@@ -8,6 +8,30 @@
     - Including merge cells
 - Simple Excel formatting
 
+## POM Dependencies
+```xml
+<dependencies>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>4.11</version>
+      <scope>test</scope>
+    </dependency>
+    <!-- https://mvnrepository.com/artifact/org.apache.poi/poi -->
+    <dependency>
+        <groupId>org.apache.poi</groupId>
+        <artifactId>poi</artifactId>
+        <version>3.9</version>
+    </dependency>
+	<!-- https://mvnrepository.com/artifact/org.jsoup/jsoup -->
+	<dependency>
+		<groupId>org.jsoup</groupId>
+		<artifactId>jsoup</artifactId>
+		<version>1.16.2</version>
+	</dependency>
+</dependencies>
+```
+
 ## Java examples
 *HttpHelper*
 Process a provided URL and clean the HTML tables, to return a ready-to-use String with the `TableHtml`
