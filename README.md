@@ -1,7 +1,7 @@
 # Java 2 Html Excel Export (J2HEE)
 ![Logo](img/logo.png)
 
-*J2HEE* is a free open-source library to exporting HTML tables to excel most common formats. It provides easy and simple objects to handle:
+**J2HEE** is a free open-source library for exporting HTML tables to Excel in most common formats:
 
 - HTTP Requests URLs with HTML table
 - HTML to Excel transformation
