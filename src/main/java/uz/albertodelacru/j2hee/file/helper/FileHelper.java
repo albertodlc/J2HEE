@@ -1,6 +1,8 @@
 package uz.albertodelacru.j2hee.file.helper;
 
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -9,6 +11,7 @@ import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.ss.usermodel.Workbook;
 
 public class FileHelper {
 	
@@ -34,7 +37,7 @@ public class FileHelper {
 		}
 	}
 
-	public static String readExcelFileFromLocal(String path){
+	public static String readHtmlFileFromLocal(String path){
 		StringBuilder contentBuilder = new StringBuilder();
 
 		InputStream is = FileHelper.class.getResourceAsStream(path);
@@ -48,5 +51,21 @@ public class FileHelper {
 		}
 
 		return cleanString(contentBuilder.toString());
+	}
+
+	public static HSSFWorkbook readExcelFileFromLocal(String path){
+		 try {
+			return new HSSFWorkbook(new FileInputStream(path));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		return null;
+	}
+
+	public static boolean existFile(String path){
+		File f = new File(path);
+
+		return f.isFile();
 	}
 }

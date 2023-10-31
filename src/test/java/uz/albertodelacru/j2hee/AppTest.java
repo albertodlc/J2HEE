@@ -31,7 +31,7 @@ public class AppTest
     public void loadAndConvertHtmlTable_LocalFileTotalEqAv()
     {
         // WHEN
-        TableHtml table = new TableHtml( FileHelper.readExcelFileFromLocal("/totalEquipoAv.html"), true, true);
+        TableHtml table = new TableHtml( FileHelper.readHtmlFileFromLocal("/totalEquipoAv.html"), true, true);
         WorkbookManager wb = new WorkbookManager(table, "Test");
 
         // TEST
@@ -47,7 +47,7 @@ public class AppTest
     public void loadAndConvertHtmlTable_LocalFileKPI1()
     {
         // WHEN
-        TableHtml table = new TableHtml( FileHelper.readExcelFileFromLocal("/kpi1.html"), false, true);
+        TableHtml table = new TableHtml( FileHelper.readHtmlFileFromLocal("/kpi1.html"), false, true);
         WorkbookManager wb = new WorkbookManager(table, "Test");
 
         // TEST
@@ -63,7 +63,7 @@ public class AppTest
     public void loadAndConvertHtmlTable_LocalFileKPI2()
     {
         // WHEN
-        TableHtml table = new TableHtml( FileHelper.readExcelFileFromLocal("/kpi2.html"), false, true);
+        TableHtml table = new TableHtml( FileHelper.readHtmlFileFromLocal("/kpi2.html"), false, true);
         WorkbookManager wb = new WorkbookManager(table, "Test");
 
         // TEST
@@ -79,7 +79,7 @@ public class AppTest
     public void loadAndConvertHtmlTable_LocalFileKPI3()
     {
         // WHEN
-        TableHtml table = new TableHtml( FileHelper.readExcelFileFromLocal("/kpi3.html"), false, true);
+        TableHtml table = new TableHtml( FileHelper.readHtmlFileFromLocal("/kpi3.html"), false, true);
         WorkbookManager wb = new WorkbookManager(table, "Test");
 
         // TEST
@@ -95,7 +95,7 @@ public class AppTest
     public void loadAndConvertHtmlTable_LocalFileKPI4()
     {
         // WHEN
-        TableHtml table = new TableHtml( FileHelper.readExcelFileFromLocal("/kpi4.html"), false, true);
+        TableHtml table = new TableHtml( FileHelper.readHtmlFileFromLocal("/kpi4.html"), false, true);
         WorkbookManager wb = new WorkbookManager(table, "Test");
 
         // TEST
@@ -111,7 +111,7 @@ public class AppTest
     public void loadAndConvertHtmlTable_LocalFileKPI5()
     {
         // WHEN
-        TableHtml table = new TableHtml( FileHelper.readExcelFileFromLocal("/kpi5.html"), false, true);
+        TableHtml table = new TableHtml( FileHelper.readHtmlFileFromLocal("/kpi5.html"), false, true);
         WorkbookManager wb = new WorkbookManager(table, "Test");
 
         // TEST
@@ -127,7 +127,7 @@ public class AppTest
     public void loadAndConvertHtmlTable_LocalFileKPI6()
     {
         // WHEN
-        TableHtml table = new TableHtml( FileHelper.readExcelFileFromLocal("/kpi6.html"), false, true);
+        TableHtml table = new TableHtml( FileHelper.readHtmlFileFromLocal("/kpi6.html"), false, true);
         WorkbookManager wb = new WorkbookManager(table, "Test");
 
         // TEST
@@ -143,7 +143,7 @@ public class AppTest
     public void loadAndConvertHtmlTable_LocalFileKPI7()
     {
         // WHEN
-        TableHtml table = new TableHtml( FileHelper.readExcelFileFromLocal("/kpi7.html"), false, true);
+        TableHtml table = new TableHtml( FileHelper.readHtmlFileFromLocal("/kpi7.html"), false, true);
         WorkbookManager wb = new WorkbookManager(table, "Test");
 
         // TEST
@@ -159,7 +159,7 @@ public class AppTest
     public void loadAndConvertHtmlTable_LocalFileEmpty()
     {
         // WHEN
-        TableHtml table = new TableHtml( FileHelper.readExcelFileFromLocal("/emptyTable.html"), true, true);
+        TableHtml table = new TableHtml( FileHelper.readHtmlFileFromLocal("/emptyTable.html"), true, true);
         WorkbookManager wb = new WorkbookManager(table, "Test");
 
         // TEST
@@ -176,7 +176,7 @@ public class AppTest
     public void loadAndConvertHtmlTable_LocalFileTotalGarantias()
     {
         // WHEN
-        TableHtml table = new TableHtml( FileHelper.readExcelFileFromLocal("/totalGarantias.html"), true, true);
+        TableHtml table = new TableHtml( FileHelper.readHtmlFileFromLocal("/totalGarantias.html"), true, true);
         WorkbookManager wb = new WorkbookManager(table, "Test");
         
         // TEST
@@ -193,7 +193,7 @@ public class AppTest
     public void loadAndConvertHtmlTable_LocalFileTotalFabEnvio()
     {
         // WHEN
-        TableHtml table = new TableHtml( FileHelper.readExcelFileFromLocal("/totalFabEnvioTipEquipo.html"), false, true);
+        TableHtml table = new TableHtml( FileHelper.readHtmlFileFromLocal("/totalFabEnvioTipEquipo.html"), false, true);
         WorkbookManager wb = new WorkbookManager(table, "Test");
 
         // TEST

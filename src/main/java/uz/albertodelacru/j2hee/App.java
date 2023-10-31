@@ -12,10 +12,10 @@ public class App
 {
     public static void main( String[] args )
     {
-        // String totalGarantias = FileHelper.readExcelFileFromLocal( "/totalGarantias.html" );
-        // String repGarNo = FileHelper.readExcelFileFromLocal( "/repGar.html" );
-        // String totalEqAv = FileHelper.readExcelFileFromLocal( "/totalEquipoAv.html" );
-        // String totalFabEnvioTipEquipo = FileHelper.readExcelFileFromLocal( "/totalFabEnvioTipEquipo.html" );
+        // String totalGarantias = FileHelper.readHtmlFileFromLocal( "/totalGarantias.html" );
+        // String repGarNo = FileHelper.readHtmlFileFromLocal( "/repGar.html" );
+        // String totalEqAv = FileHelper.readHtmlFileFromLocal( "/totalEquipoAv.html" );
+        // String totalFabEnvioTipEquipo = FileHelper.readHtmlFileFromLocal( "/totalFabEnvioTipEquipo.html" );
 
         // TableHtml htmlTableTotalFabEnvioTipEquipo = new TableHtml(totalFabEnvioTipEquipo, true, true, false, true);
         // TableHtml htmlTableTotalEqAv = new TableHtml(totalEqAv, true, true, true, true);
