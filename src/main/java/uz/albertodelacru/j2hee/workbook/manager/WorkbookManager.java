@@ -128,7 +128,7 @@ public class WorkbookManager extends Workbook {
 
 		// Autoformateamos las columnas (para ajustar el ancho al texto)
 		for( int i = 0; i < table.getMaxNumColumns(); i++ ){
-			ws.autoSizeColumn(i);
+			ws.autoSizeColumn(i, true);
 		}
 	}
 
